@@ -39,11 +39,55 @@ window.addEventListener('load', event => {
   // Add all the divs to the HTML
   document.querySelector('#memory-board').innerHTML = html;
 
+  const cardsArr = [];
   // Bind the click event of each element to a function
   document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => {
       // TODO: write some code here
-      console.log(`Card clicked: ${card}`);
+      card.className = 'card turned';
+      cardsArr.push(card.getAttribute('data-card-name'));
+      let pair = false;
+
+      if(cardsArr.length === 2){
+        pair = memoryGame.checkIfPair(cardsArr[0], cardsArr[1]);
+        if(!pair && cardsArr.length === 2){
+          const turned = document.getElementsByClassName('card turned');
+          const turnedArr = [...turned];
+          turnedArr.forEach(turnedCard => {
+            if(!turnedCard.className.includes('blocked')){
+              setTimeout(() =>{
+                turnedCard.className = 'card';
+              }, 1000);
+            }
+            cardsArr.length = 0;
+          });
+        }else {
+          const turned = document.getElementsByClassName('card turned');
+          const turnedArr = [...turned];
+          turnedArr.forEach(turnedCard => {
+            turnedCard.className = 'card turned blocked';
+          });
+          cardsArr.length = 0;
+        }
+      }
+      const pairsClicked = document.getElementById('pairs-clicked');
+      pairsClicked.innerHTML = memoryGame.pairsClicked;
+      const pairsGuessed = document.getElementById('pairs-guessed');
+      pairsGuessed.innerHTML = memoryGame.pairsGuessed;
+
+      if(memoryGame.isFinished()){
+        const turnedCards = document.getElementsByClassName('card turned');
+        const turnedArr = [...turnedCards];
+        turnedArr.forEach(card => {
+          setTimeout(() => {
+            card.className = 'card';
+
+          }, 1000);
+        });
+        memoryGame.shuffleCards();
+        memoryGame.pairsClicked = 0;
+        memoryGame.pairsGuessed = 0;
+      }
     });
   });
 });
